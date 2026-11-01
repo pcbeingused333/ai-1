@@ -25,6 +25,7 @@ import {
   makeStructuredOutputCompatibleWithMap,
   warnStrictFallback,
 } from '../utils/schema-converter'
+import { drainAfterTerminal } from '../utils/drain-after-terminal'
 import { createToolInputNormalizer } from '../utils/tool-input-normalizer'
 import type {
   OpenAIBaseTextAdapterOptions,
@@ -855,7 +856,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
         extractRequestOptions(chatOptions.request),
       )
 
-      for await (const chunk of stream) {
+      for await (const chunk of drainAfterTerminal(stream)) {
         chatOptions.logger.provider(
           `provider=${this.name} type=${chunk.type}`,
           { provider: this.name, type: chunk.type },
@@ -1661,7 +1662,7 @@ export abstract class OpenAIBaseResponsesTextAdapter<
     }
 
     try {
-      for await (const chunk of stream) {
+      for await (const chunk of drainAfterTerminal(stream)) {
         options.logger.provider(`provider=${this.name} type=${chunk.type}`, {
           provider: this.name,
           type: chunk.type,
